@@ -26,6 +26,29 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn compile
+    
+  security-check:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Trivy  install
+      run: |
+       sudo apt update
+       sudo apt install wget gnupg lsb-release -y
+       wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+       echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
+       sudo apt update
+       sudo apt install trivy -y
+       
+    - name: Trivy fs Scan
+      run: trivy fs --format table -o fs-report.json
+      
+      
+
+
+
 
     
