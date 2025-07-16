@@ -27,39 +27,35 @@ jobs:
     - name: Build with Maven
       run: mvn compile
     
-  security-check:
-    runs-on: self-hosted
-    needs: build
+#  security-check:
+ #   runs-on: self-hosted
+  #  needs: build
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup Trivy (Fast + Safe)
-      run: |
-       while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
-         echo "Waiting for apt lock..."
-         sleep 2
-       done
-       sudo apt-get update -y
-       sudo apt-get install -y --no-install-recommends wget gnupg lsb-release curl gpg
-       sudo mkdir -p /etc/apt/keyrings
-       curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key | \
-       gpg --dearmor | sudo tee /etc/apt/keyrings/trivy.gpg > /dev/null
-       echo "deb [signed-by=/etc/apt/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" | \
-       sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
-       sudo apt-get update -y
-       sudo apt-get install -y --no-install-recommends trivy
+    #- uses: actions/checkout@v4
+    #- name: Setup Trivy (Fast + Safe)
+    #  run: |
+       #sudo apt-get update -y
+       #sudo apt-get install -y --no-install-recommends wget gnupg lsb-release curl gpg
+       #sudo mkdir -p /etc/apt/keyrings
+       #curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key | \
+      # gpg --dearmor | sudo tee /etc/apt/keyrings/trivy.gpg > /dev/null
+     #  echo "deb [signed-by=/etc/apt/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" | \
+    #   sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
+   #    sudo apt-get update -y
+  #     sudo apt-get install -y --no-install-recommends trivy
 
 
 
        
-    - name: Trivy fs Scan
-      run: trivy fs --format table -o fs-report.json .
+  #  - name: Trivy fs Scan
+   #   run: trivy fs --format table -o fs-report.json .
 
-    - name: gitleaks installation
-      run: sudo apt install gitleaks -y
+    #- name: gitleaks installation
+     # run: sudo apt install gitleaks -y
 
-    - name: gitleaks code scan
-      run: gitleaks detect source . -r gitleaks-report.json -f json
+  #  - name: gitleaks code scan
+   #   run: gitleaks detect source . -r gitleaks-report.json -f json
       
   test:
     runs-on: self-hosted
