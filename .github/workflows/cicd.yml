@@ -33,17 +33,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Install Trivy
+    - name: Setup Trivy (Fast + Safe)
       run: |
-       set -e
+       while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+         echo "Waiting for apt lock..."
+         sleep 2
+       done
        sudo apt-get update -y
-       sudo apt-get install -y wget gnupg lsb-release
+       sudo apt-get install -y --no-install-recommends wget gnupg lsb-release curl gpg
+       sudo mkdir -p /etc/apt/keyrings
        curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key | \
-       gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-       echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" | \
+       gpg --dearmor | sudo tee /etc/apt/keyrings/trivy.gpg > /dev/null
+       echo "deb [signed-by=/etc/apt/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" | \
        sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
        sudo apt-get update -y
-       sudo apt-get install -y trivy
+       sudo apt-get install -y --no-install-recommends trivy
+
 
 
        
