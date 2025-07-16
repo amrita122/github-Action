@@ -33,14 +33,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Trivy  install
+    - name: Install Trivy
       run: |
-       sudo apt update -y
-       sudo apt install wget gnupg lsb-release -y
-       wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
-       echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
-       sudo apt update -y
-       sudo apt install trivy -y
+       set -e
+       sudo apt-get update -y
+       sudo apt-get install -y wget gnupg lsb-release
+       curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key | \
+       gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+       echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" | \
+       sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
+       sudo apt-get update -y
+       sudo apt-get install -y trivy
+
+
        
     - name: Trivy fs Scan
       run: trivy fs --format table -o fs-report.json .
