@@ -35,11 +35,11 @@ jobs:
     - uses: actions/checkout@v4
     - name: Trivy  install
       run: |
-       sudo apt update
+       sudo apt update -y
        sudo apt install wget gnupg lsb-release -y
        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
        echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
-       sudo apt update
+       sudo apt update -y
        sudo apt install trivy -y
        
     - name: Trivy fs Scan
@@ -51,6 +51,19 @@ jobs:
     - name: gitleaks code scan
       run: gitleaks detect source . -r gitleaks-report.json -f json
       
+  test:
+    runs-on: self-hosted
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    - name: Unit test cases
+      run: mvn test
       
       
       
